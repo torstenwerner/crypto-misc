@@ -15,6 +15,11 @@ java -jar crypto-misc.jar er <erName> <certName> <dataName>
 
 Please fetch a binary release from github's release page.
 
+== Continuous integration thanks to snap-ci.com
+
+Build image:https://snap-ci.com/torstenwerner/crypto-misc/branch/master/build_image[status]
+at link:https://snap-ci.com/torstenwerner/crypto-misc/branch/master[Snap CI]
+
 == Searching a (e.g. timestamp) certificate by issuer DN and serial number
 
 [source]
