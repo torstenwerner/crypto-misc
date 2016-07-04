@@ -6,12 +6,18 @@ import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.tsp.TimeStampToken;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.String.format;
 
 public class EvidenceRecordParser {
     private ASN1Encodable record;
@@ -151,31 +157,48 @@ public class EvidenceRecordParser {
     }
 
     // e.g. sample/test02.txt-er.der sample/tss-signtrust-50.cer sample/test02.txt
-    public static void parse(String erName, String certName, String dataName) {
-        try {
-            ASN1InputStream inputStream = new ASN1InputStream(new FileInputStream(erName));
-            EvidenceRecordParser parser = new EvidenceRecordParser(inputStream.readObject());
-            parser.parse();
-            System.out.println("evidence record successfully parsed");
-
-            CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(certName));
-            VerifyTST timestampVerifier = new VerifyTST(parser.getTimestamptoken(), certificate);
-            timestampVerifier.verify();
-            System.out.println("timestamp successfully verified");
-
-            HashTreeVerifier hashTreeVerifier = new HashTreeVerifier(timestampVerifier.getDigest());
-            MessageDigest md = MessageDigest.getInstance("SHA-256", "BC"); // FIXME: algorithm should be calculated from timestamptoken
-            byte[] document = IOUtils.toByteArray(new FileInputStream(dataName));
-            hashTreeVerifier.verify(parser.getHashtree(), md.digest(document));
-
-            System.out.println("evidence record successfully verified");
-        } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+    public static void parse(String erName, String certName, String dataName) throws IOException, GeneralSecurityException {
+        if (!new File(erName).canRead()) {
+            System.err.println(format("Cannot read file %s.", erName));
+            return;
         }
+        if (!new File(certName).canRead()) {
+            System.err.println(format("Cannot read file %s.", certName));
+            return;
+        }
+        if (!new File(dataName).canRead()) {
+            System.err.println(format("Cannot read file %s.", dataName));
+            return;
+        }
+
+        ASN1InputStream inputStream = new ASN1InputStream(new FileInputStream(erName));
+        EvidenceRecordParser parser;
+        try {
+            parser = new EvidenceRecordParser(inputStream.readObject());
+        } catch (IOException e) {
+            System.err.println(format("error parsing evidence record %s: %s", erName, e.getMessage()));
+            return;
+        }
+        parser.parse();
+        System.out.println("evidence record successfully parsed");
+
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        X509Certificate certificate;
+        try {
+            certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(certName));
+        } catch (CertificateException e) {
+            System.err.println(format("error reading certificate %s: %s", certName, e.getMessage()));
+            return;
+        }
+        VerifyTST timestampVerifier = new VerifyTST(parser.getTimestamptoken(), certificate);
+        timestampVerifier.verify();
+        System.out.println("timestamp successfully verified");
+
+        HashTreeVerifier hashTreeVerifier = new HashTreeVerifier(timestampVerifier.getDigest());
+        MessageDigest md = MessageDigest.getInstance("SHA-256"); // FIXME: algorithm should be calculated from timestamptoken
+        byte[] document = IOUtils.toByteArray(new FileInputStream(dataName));
+        hashTreeVerifier.verify(parser.getHashtree(), md.digest(document));
+
+        System.out.println("evidence record successfully verified");
     }
 }
