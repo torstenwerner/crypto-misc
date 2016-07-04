@@ -135,12 +135,8 @@ public class Asn1Parser {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        if (args.length != 1) {
-            System.err.println("need a filename");
-            return;
-        }
-        ASN1InputStream asn1InputStream = new ASN1InputStream(new FileInputStream(args[0]));
+    public static void parse(String filename) throws IOException {
+        ASN1InputStream asn1InputStream = new ASN1InputStream(new FileInputStream(filename));
 
         ASN1Primitive object = asn1InputStream.readObject();
         new Asn1Parser(object, 0).print();

@@ -151,26 +151,22 @@ public class EvidenceRecordParser {
     }
 
     // e.g. sample/test02.txt-er.der sample/tss-signtrust-50.cer sample/test02.txt
-    public static void main(String[] args) {
-        if (args.length != 3) {
-            System.err.println("need exactly 3 filenames: evidence record, X.509 certificate, document");
-            return;
-        }
+    public static void parse(String erName, String certName, String dataName) {
         try {
-            ASN1InputStream inputStream = new ASN1InputStream(new FileInputStream(args[0]));
+            ASN1InputStream inputStream = new ASN1InputStream(new FileInputStream(erName));
             EvidenceRecordParser parser = new EvidenceRecordParser(inputStream.readObject());
             parser.parse();
             System.out.println("evidence record successfully parsed");
 
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            X509Certificate certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(args[1]));
+            X509Certificate certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(certName));
             VerifyTST timestampVerifier = new VerifyTST(parser.getTimestamptoken(), certificate);
             timestampVerifier.verify();
             System.out.println("timestamp successfully verified");
 
             HashTreeVerifier hashTreeVerifier = new HashTreeVerifier(timestampVerifier.getDigest());
             MessageDigest md = MessageDigest.getInstance("SHA-256", "BC"); // FIXME: algorithm should be calculated from timestamptoken
-            byte[] document = IOUtils.toByteArray(new FileInputStream(args[2]));
+            byte[] document = IOUtils.toByteArray(new FileInputStream(dataName));
             hashTreeVerifier.verify(parser.getHashtree(), md.digest(document));
 
             System.out.println("evidence record successfully verified");
