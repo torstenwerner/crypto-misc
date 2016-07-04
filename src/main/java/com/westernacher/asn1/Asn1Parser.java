@@ -2,12 +2,17 @@ package com.westernacher.asn1;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.*;
+import org.bouncycastle.util.io.pem.PemReader;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+
+import static java.lang.String.format;
 
 public class Asn1Parser {
     private StringBuffer output = new StringBuffer();
@@ -131,14 +136,28 @@ public class Asn1Parser {
                 parse();
             }
         } catch (IOException e) {
-            addMessage("found neither printable ASCII string nor ASN.1 data");
+            addMessage("found neither printable ASCII string nor ASN.1 data: " + e.getMessage());
         }
     }
 
     public static void parse(String filename) throws IOException {
-        ASN1InputStream asn1InputStream = new ASN1InputStream(new FileInputStream(filename));
+        if (!new File(filename).canRead()) {
+            System.err.println(format("Cannot read file %s.", filename));
+            return;
+        }
 
-        ASN1Primitive object = asn1InputStream.readObject();
+        ASN1Primitive object;
+        try {
+            ASN1InputStream asn1InputStream = new ASN1InputStream(new FileInputStream(filename));
+            object = asn1InputStream.readObject();
+        } catch (IOException e) {
+            // try PEM as a fallback
+            System.out.println("Failed to read DER file - try to fallback to PEM format.");
+            final PemReader pemReader = new PemReader(new FileReader(filename));
+            final byte[] pemContent = pemReader.readPemObject().getContent();
+            ASN1InputStream asn1InputStream = new ASN1InputStream(pemContent);
+            object = asn1InputStream.readObject();
+        }
         new Asn1Parser(object, 0).print();
         System.out.println("size of encoded object: " + object.getEncoded().length);
     }

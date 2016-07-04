@@ -1,5 +1,3 @@
-subject=/CN=Testkarte:PN/pseudonym=Testkarte:PN/serialNumber=0020000000012093010001/emailAddress=t.kruse@bnotk.de
-issuer=/C=DE/O=Bundesnotarkammer/CN=CA BNotK 9:PN
 -----BEGIN CERTIFICATE-----
 MIIFvjCCBKagAwIBAgIJARWORgvknLBRMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNV
 BAYTAkRFMRowGAYDVQQKDBFCdW5kZXNub3RhcmthbW1lcjEWMBQGA1UEAwwNQ0Eg
