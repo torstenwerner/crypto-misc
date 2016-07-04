@@ -136,7 +136,8 @@ public class VerifyTST {
             if (signerInformation.verify(verifier)) {
                 System.out.println("    CMS level successfully validated");
             } else {
-                System.out.println("    CMS level validation failed");
+                System.out.println("    CMS level validation failed for: " + signerInformation.getSID().getIssuer() +
+                        " serial " + signerInformation.getSID().getSerialNumber());
             }
         }
     }

@@ -150,7 +150,7 @@ public class EvidenceRecordParser {
         }
     }
 
-    // e.g. sample/test02.txt-er.der sample/test02.cer sample/test02.txt
+    // e.g. sample/test02.txt-er.der sample/tss-signtrust-50.cer sample/test02.txt
     public static void main(String[] args) {
         if (args.length != 3) {
             System.err.println("need exactly 3 filenames: evidence record, X.509 certificate, document");
