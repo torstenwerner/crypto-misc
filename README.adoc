@@ -13,7 +13,7 @@ java -jar crypto-misc.jar asn1 <fileName>
 java -jar crypto-misc.jar er <erName> <certName> <dataName>
 ----
 
-Please fetch a binary release from github's release page.
+Please fetch a binary release from link:https://github.com/torstenwerner/crypto-misc/releases[github's release page].
 
 == Continuous integration thanks to snap-ci.com
 
