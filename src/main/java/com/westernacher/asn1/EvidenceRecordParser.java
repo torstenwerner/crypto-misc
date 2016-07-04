@@ -150,6 +150,7 @@ public class EvidenceRecordParser {
         }
     }
 
+    // e.g. sample/test02.txt-er.der sample/test02.cer sample/test02.txt
     public static void main(String[] args) {
         if (args.length != 3) {
             System.err.println("need exactly 3 filenames: evidence record, X.509 certificate, document");
@@ -161,7 +162,7 @@ public class EvidenceRecordParser {
             parser.parse();
             System.out.println("evidence record successfully parsed");
 
-            CertificateFactory factory = CertificateFactory.getInstance("X.509", "BC");
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
             X509Certificate certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(args[1]));
             VerifyTST timestampVerifier = new VerifyTST(parser.getTimestamptoken(), certificate);
             timestampVerifier.verify();
