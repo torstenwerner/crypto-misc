@@ -14,7 +14,7 @@ This parser has some advantages over other ASN.1 parsers.
 - ASN.1 often contain other ASN.1 substructures like members of a list or even a string consisting of ASN.1 octets.
 This parser tries hard to descend into such potential ASN.1 substructures and parses them as well.
 - It ships a file `oid.properties` that provides human readable values for various oid keys. Do you have an ASN.1 file
-that is not fully covered by this property file? Just add your missing properties and their human readable messages.
+that is not fully covered by this property file? Simply add your missing properties and their human readable messages.
 You have just created an even better ASN.1 parser!
 
 How to use it:
