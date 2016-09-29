@@ -3,9 +3,9 @@
 This project implements:
 
 * an ASN.1 parser,
-* a timestamp verifier
+* a timestamp verifier,
 * an evidence record parser, and
-* an evidence record verifier
+* an evidence record verifier.
 
 Everything is pretty low level.
 Sorry for that.
