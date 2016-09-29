@@ -35,6 +35,10 @@ at link:https://snap-ci.com/torstenwerner/crypto-misc/branch/master[Snap CI]
 == Searching a (e.g. timestamp) certificate by issuer DN and serial number
 
 The following command might be useful in Germany.
+Imaging you have a time stamp signature but not the certificate from the signer but this tool needs the certificate
+to check the signature.
+The time stamp contains the certificate issuers dn (distinguished name) and the certificate's serial number.
+Both values can be used the fetch the actual certificate from the ca (certificate authority).
 
 [source]
 ----
