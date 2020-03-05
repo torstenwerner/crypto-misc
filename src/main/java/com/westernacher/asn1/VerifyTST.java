@@ -6,6 +6,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
 import org.bouncycastle.cert.X509AttributeCertificateHolder;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationVerifier;
@@ -60,7 +61,7 @@ public class VerifyTST {
             out.println("timestamp not validated without certificate");
         }
 
-        Store store = token.getCertificates();
+        Store<X509CertificateHolder> store = token.getCertificates();
         out.println("certs = " + store.getMatches(new X509CertStoreSelector()));
         if (token.getSignedAttributes() != null) {
             out.println("signed attribute count: " + token.getSignedAttributes().size());
