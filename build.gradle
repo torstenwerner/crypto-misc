@@ -8,7 +8,8 @@ buildscript {
 }
 
 apply plugin: "java"
-apply plugin: "spring-boot"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "org.springframework.boot"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -34,8 +35,4 @@ test.testLogging.lifecycle {
 wrapper {
     gradleVersion = "6.2.2"
     distributionType = Wrapper.DistributionType.ALL
-}
-
-springBoot {
-    mainClass = "com.westernacher.Application"
 }
