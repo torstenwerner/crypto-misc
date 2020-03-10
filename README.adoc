@@ -4,8 +4,9 @@ This project implements:
 
 * an ASN.1 parser,
 * a timestamp verifier,
-* an evidence record parser, and
-* an evidence record verifier.
+* an evidence record parser,
+* an evidence record verifier, and
+* a generator of CertificateRequestInfo.
 
 Everything is pretty low level.
 Sorry for that.
@@ -17,12 +18,16 @@ This parser tries hard to descend into such potential ASN.1 substructures and pa
 that is not fully covered by this property file? Simply add your missing properties and their human readable messages.
 You have just created an even better ASN.1 parser!
 
+A CertificateRequestInfo is the part of a certificate signing request (CSR) without the signature and the signature algorithm.
+Or in other words: the payload of a CSR.
+
 How to use it:
 
 [source]
 ----
 java -jar crypto-misc.jar asn1 <fileName>
 java -jar crypto-misc.jar er <erName> <certName> <dataName>
+java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>
 ----
 
 Please fetch a binary release from link:https://github.com/torstenwerner/crypto-misc/releases[github's release page].
