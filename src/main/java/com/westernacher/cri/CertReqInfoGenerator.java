@@ -36,7 +36,8 @@ public class CertReqInfoGenerator {
     private void newRequestInfo(byte[] publicKey, String x500Name, String outputFile) throws IOException {
         final SubjectPublicKeyInfo publicKeyInfo = subjectPublicKeyInfo(publicKey);
         final X500Name x500 = new X500Name(x500Name);
-        final CertificationRequestInfo requestInfo = new CertificationRequestInfo(x500, publicKeyInfo, null);
+        final ASN1Set attributes = new DERSet();
+        final CertificationRequestInfo requestInfo = new CertificationRequestInfo(x500, publicKeyInfo, attributes);
         try (final OutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(requestInfo.getEncoded());
         }
