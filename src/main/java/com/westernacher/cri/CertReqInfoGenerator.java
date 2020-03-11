@@ -1,7 +1,6 @@
 package com.westernacher.cri;
 
-import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.CertificationRequestInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
@@ -35,11 +34,34 @@ public class CertReqInfoGenerator {
     }
 
     private void newRequestInfo(byte[] publicKey, String x500Name, String outputFile) throws IOException {
-        final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey);
+        final SubjectPublicKeyInfo publicKeyInfo = subjectPublicKeyInfo(publicKey);
         final X500Name x500 = new X500Name(x500Name);
         final CertificationRequestInfo requestInfo = new CertificationRequestInfo(x500, publicKeyInfo, null);
         try (final OutputStream outputStream = new FileOutputStream(outputFile)) {
             outputStream.write(requestInfo.getEncoded());
+        }
+    }
+
+    /**
+     * Convert the public key into a {@link SubjectPublicKeyInfo} object.
+     * Handles incomplete key data as well by assuming that the byte array contains RSA public key data only.
+     */
+    private SubjectPublicKeyInfo subjectPublicKeyInfo(byte[] publicKey) {
+        try {
+            return SubjectPublicKeyInfo.getInstance(publicKey);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Public key is incomplete. Assuming RSA public key material.");
+            final ASN1ObjectIdentifier rsaIdentifier = new ASN1ObjectIdentifier("1.2.840.113549.1.1.1");
+            final ASN1EncodableVector idPartVector = new ASN1EncodableVector();
+            idPartVector.add(rsaIdentifier);
+            idPartVector.add(DERNull.INSTANCE);
+            final ASN1Sequence idPart = new DERSequence(idPartVector);
+            final DERBitString keyPart = new DERBitString(publicKey);
+            final ASN1EncodableVector vector = new ASN1EncodableVector();
+            vector.add(idPart);
+            vector.add(keyPart);
+            final DERSequence pubkeySequence = new DERSequence(vector);
+            return SubjectPublicKeyInfo.getInstance(pubkeySequence);
         }
     }
 }
