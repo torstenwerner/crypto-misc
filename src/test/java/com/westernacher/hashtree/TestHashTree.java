@@ -1,19 +1,23 @@
 package com.westernacher.hashtree;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TestHashTree {
-    private static byte[] getDigest(String data) throws GeneralSecurityException, IOException {
+
+    private static byte[] getDigest(String data) throws GeneralSecurityException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        return md.digest(data.getBytes("UTF-8"));
+        return md.digest(data.getBytes(UTF_8));
     }
 
     private HashTree hashTree;
@@ -21,8 +25,8 @@ public class TestHashTree {
     private List<List<byte[]>> digestList01;
     private HashTreeVerifier verifier, wrongRootVerifier;
 
-    @Before
-    public void setup() throws GeneralSecurityException, IOException {
+    @BeforeEach
+    public void setup() throws GeneralSecurityException {
         hashTree = HashTree.getInstance();
         data01 = getDigest("Hello World");
         hashTree.addDigest(data01);
@@ -41,34 +45,38 @@ public class TestHashTree {
     }
 
     @Test
-    public void testHashtree() throws GeneralSecurityException, IOException {
-        assertEquals(6, digestList01.size());
+    public void testHashtree() throws GeneralSecurityException {
+        assertThat(digestList01).hasSize(6);
         int fullSize = 0;
         for (List<byte[]> subList : digestList01) {
             fullSize += subList.size();
         }
-        assertEquals(3, fullSize);
+        assertThat(fullSize).isEqualTo(3);
         verifier.verify(digestList01, data01);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testWrongTree() throws GeneralSecurityException, IOException {
-        verifier.verify(digestList01, data02);
+    @Test
+    public void testWrongTree() {
+        assertThatThrownBy(() -> verifier.verify(digestList01, data02))
+                .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testWrongDigest() throws GeneralSecurityException, IOException {
-        hashTree.getReducedTree(data04);
+    @Test
+    public void testWrongDigest() {
+        assertThatThrownBy(() -> hashTree.getReducedTree(data04))
+                .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testModifiedTree() throws GeneralSecurityException, IOException {
-        digestList01.get(1).get(0)[0] += 1;
-        verifier.verify(digestList01, data01);
+    @Test
+    public void testModifiedTree() {
+        digestList01.get(0).get(0)[0] += 1;
+        assertThatThrownBy(() -> verifier.verify(digestList01, data01))
+                .isInstanceOf(RuntimeException.class);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testWrongRoot() throws GeneralSecurityException, IOException {
-        wrongRootVerifier.verify(digestList01, data01);
+    @Test
+    public void testWrongRoot() {
+        assertThatThrownBy(() -> wrongRootVerifier.verify(digestList01, data01))
+                .isInstanceOf(RuntimeException.class);
     }
 }
