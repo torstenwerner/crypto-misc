@@ -13,7 +13,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class TestHashTree {
+public class HashTreeTest {
 
     private static byte[] getDigest(String data) throws GeneralSecurityException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
