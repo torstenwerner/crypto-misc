@@ -1,10 +1,7 @@
-package com.westernacher.hashtree;
+package com.westernacher.asn1;
 
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1Integer;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1String;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
@@ -20,8 +17,10 @@ import java.security.MessageDigest;
 import java.security.Security;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @SpringBootTest(classes = TimestampTest.class, webEnvironment = NONE)
@@ -44,41 +43,17 @@ public class TimestampTest {
         assertThat(govResource).isNotNull();
 
         final byte[] govBytes = IOUtils.toByteArray(govResource.getInputStream());
-        final ASN1Sequence govSequence = ASN1Sequence.getInstance(govBytes);
+        final Optional<BeaTimestamp> beaTimestamp = BeaTimestamp.of(govBytes);
 
-        assertThat(govSequence.size()).isEqualTo(2);
-        assertGovStatus(govSequence.getObjectAt(0));
-        assertPkcs7(govSequence.getObjectAt(1));
-    }
-
-    private void assertGovStatus(ASN1Encodable govStatus) {
-        assertThat(govStatus).isInstanceOf(ASN1Sequence.class);
-
-        final ASN1Sequence govStatusSequence = (ASN1Sequence) govStatus;
-
-        assertThat(govStatusSequence.size()).isEqualTo(2);
-
-        final ASN1Encodable govStatusInteger = govStatusSequence.getObjectAt(0);
-
-        assertThat(govStatusInteger).isInstanceOf(ASN1Integer.class);
-
-        final int govStatusIntValue = ((ASN1Integer) govStatusInteger).intValueExact();
-
-        assertThat(govStatusIntValue).isEqualTo(0);
-
-        final ASN1Encodable govStatusStringSequence = govStatusSequence.getObjectAt(1);
-
-        assertThat(govStatusStringSequence).isInstanceOf(ASN1Sequence.class);
-
-        final ASN1Sequence govStatusStringSequenceCasted = (ASN1Sequence) govStatusStringSequence;
-
-        assertThat(govStatusStringSequenceCasted.size()).isEqualTo(1);
-
-        final ASN1Encodable govStatusString = govStatusStringSequenceCasted.getObjectAt(0);
-
-        assertThat(govStatusString).isInstanceOf(ASN1String.class);
-
-        assertThat(((ASN1String) govStatusString).getString()).isEqualTo("Operation Okay");
+        assertThat(beaTimestamp)
+                .isPresent()
+                .get()
+                .satisfies(beaTs -> {
+                    assertThat(beaTs.getStatus()).isEqualTo(0);
+                    assertThat(beaTs.getDetails()).isEqualTo("Operation Okay");
+                    assertThatCode(() -> assertPkcs7(beaTs.getPkcs7()))
+                            .doesNotThrowAnyException();
+                });
     }
 
     private void assertPkcs7(ASN1Encodable pkcs7) throws Exception {
@@ -100,6 +75,7 @@ public class TimestampTest {
                 .setProvider("BC")
                 .build(certificate);
 
+        // Todo: fix validation
 //        assertThat(timeStampToken.isSignatureValid(verifier)).isTrue();
 
 //        timeStampToken.validate(verifier);
