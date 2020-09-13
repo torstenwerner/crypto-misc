@@ -9,6 +9,7 @@ import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformationVerifier;
+import org.bouncycastle.tsp.GenTimeAccuracy;
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampToken;
 
@@ -168,6 +169,10 @@ public class BeaTimestamp {
 
     public Date getGenTime() {
         return timeStampToken.getTimeStampInfo().getGenTime();
+    }
+
+    public GenTimeAccuracy getGenTimeAccuracy() {
+        return timeStampToken.getTimeStampInfo().getGenTimeAccuracy();
     }
 
     public boolean isSignatureValid(SignerInformationVerifier verifier) {
