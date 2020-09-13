@@ -1,26 +1,25 @@
 package com.westernacher.asn1;
 
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.tsp.TimeStampToken;
-import org.bouncycastle.tsp.TimeStampTokenInfo;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 
-import java.security.MessageDigest;
+import java.io.IOException;
 import java.security.Security;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.bouncycastle.cms.CMSSignedGenerator.DIGEST_SHA256;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 @SpringBootTest(classes = TimestampTest.class, webEnvironment = NONE)
@@ -32,8 +31,23 @@ public class TimestampTest {
     @Value("classpath:/Nachricht44044226.zip")
     private Resource zipResource;
 
+    private byte[] zipBytes;
+
+    private SignerInformationVerifier verifier;
+
     static {
         Security.addProvider(new BouncyCastleProvider());
+    }
+
+    @BeforeEach
+    public void beforeEach() throws CertificateException, OperatorCreationException, IOException {
+        final X509Certificate certificate = (X509Certificate) CertificateFactory
+                .getInstance("X509")
+                .generateCertificate(tsCertificate.getInputStream());
+        zipBytes = IOUtils.toByteArray(zipResource.getInputStream());
+        verifier = new JcaSimpleSignerInfoVerifierBuilder()
+                .setProvider("BC")
+                .build(certificate);
     }
 
     @Test
@@ -46,44 +60,21 @@ public class TimestampTest {
         final Optional<BeaTimestamp> beaTimestamp = BeaTimestamp.of(govBytes);
 
         assertThat(beaTimestamp)
-                .isPresent()
                 .get()
                 .satisfies(beaTs -> {
                     assertThat(beaTs.getStatus()).isEqualTo(0);
                     assertThat(beaTs.getDetails()).isEqualTo("Operation Okay");
-                    assertThatCode(() -> assertPkcs7(beaTs.getPkcs7()))
-                            .doesNotThrowAnyException();
+
+                    assertThat(beaTs.getHashAlgorithmId()).isEqualTo(DIGEST_SHA256);
+                    assertThat(beaTs.getMessageImprintAlgOID()).isEqualTo(DIGEST_SHA256);
+                    assertThat(beaTs.getMessageImprintHex()).isEqualTo("4da6bc1ca754a30828d8bf2ad66520fee2520d84b987fc4d39d64c47e5381f3b");
+                    assertThat(beaTs.isMessageImprintValid(zipBytes)).isTrue();
+
+                    // Todo: fix validation
+//                    assertThat(beaTs.isSignatureValid(verifier))
+//                            .isTrue();
+//                    assertThatCode(() -> beaTs.validate(verifier))
+//                            .doesNotThrowAnyException();
                 });
-    }
-
-    private void assertPkcs7(ASN1Encodable pkcs7) throws Exception {
-
-        final CMSSignedData signedData = new CMSSignedData(pkcs7.toASN1Primitive().getEncoded());
-        final TimeStampToken timeStampToken = new TimeStampToken(signedData);
-        final TimeStampTokenInfo timeStampInfo = timeStampToken.getTimeStampInfo();
-
-        // NIST SHA-256
-        assertThat(timeStampInfo.getHashAlgorithm().getAlgorithm().getId()).isEqualTo("2.16.840.1.101.3.4.2.1");
-        assertThat(timeStampInfo.getMessageImprintAlgOID().getId()).isEqualTo("2.16.840.1.101.3.4.2.1");
-        assertThat(timeStampInfo.getMessageImprintDigest()).hasSize(32);
-        assertThat(timeStampInfo.getMessageImprintDigest()).isEqualTo(zipHash());
-
-        final X509Certificate certificate = (X509Certificate) CertificateFactory
-                .getInstance("X509")
-                .generateCertificate(tsCertificate.getInputStream());
-        final SignerInformationVerifier verifier = new JcaSimpleSignerInfoVerifierBuilder()
-                .setProvider("BC")
-                .build(certificate);
-
-        // Todo: fix validation
-//        assertThat(timeStampToken.isSignatureValid(verifier)).isTrue();
-
-//        timeStampToken.validate(verifier);
-    }
-
-    private byte[] zipHash() throws Exception {
-        final byte[] zipBytes = IOUtils.toByteArray(zipResource.getInputStream());
-        final MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        return messageDigest.digest(zipBytes);
     }
 }

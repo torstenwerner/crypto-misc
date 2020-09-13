@@ -20,8 +20,13 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.bouncycastle:bcprov-jdk15on:1.64")
-    implementation("org.bouncycastle:bcpkix-jdk15on:1.64")
+
+    implementation("org.bouncycastle:bcprov-debug-jdk15on:1.66")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.66")
+    // There is no official bcpkix jar with debug symbols. Optionally use the local jar.
+//    implementation(fileTree(include: ['*.jar'], dir: 'lib'))
+
+    implementation("commons-codec:commons-codec:1.15")
     implementation("commons-io:commons-io:2.6")
     implementation("org.apache.commons:commons-lang3:3.9")
 
