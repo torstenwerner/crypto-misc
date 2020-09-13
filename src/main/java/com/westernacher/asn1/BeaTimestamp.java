@@ -179,18 +179,18 @@ public class BeaTimestamp {
         try {
             return timeStampToken.isSignatureValid(verifier);
         } catch (TSPException e) {
-            throw new RuntimeException("Failed to validate signature of timestamp.", e);
+            throw new RuntimeException("Failed to isValid signature of timestamp.", e);
         }
     }
 
-    /**
-     * @throws AssertionError if validation fails.
-     */
-    public void validate(SignerInformationVerifier verifier) {
+    public boolean isValid(SignerInformationVerifier verifier) {
         try {
             timeStampToken.validate(verifier);
+            return true;
         } catch (TSPException e) {
-            throw new AssertionError("Failed to validate timestamp.", e);
+            System.err.printf("Failed to validate timestamp: %s%n", e.getMessage());
+            e.printStackTrace(System.err);
+            return false;
         }
     }
 }

@@ -75,8 +75,7 @@ public class TimestampTest {
                     // Todo: fix validation
 //                    assertThat(beaTs.isSignatureValid(verifier))
 //                            .isTrue();
-//                    assertThatCode(() -> beaTs.validate(verifier))
-//                            .doesNotThrowAnyException();
+//                    assertThat(beaTs.isValid(verifier)).isTrue();
                 });
     }
 }
