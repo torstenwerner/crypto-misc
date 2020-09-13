@@ -69,6 +69,7 @@ public class TimestampTest {
                     assertThat(beaTs.getMessageImprintAlgOID()).isEqualTo(DIGEST_SHA256);
                     assertThat(beaTs.getMessageImprintHex()).isEqualTo("4da6bc1ca754a30828d8bf2ad66520fee2520d84b987fc4d39d64c47e5381f3b");
                     assertThat(beaTs.isMessageImprintValid(zipBytes)).isTrue();
+                    assertThat(beaTs.getGenTime()).hasSameTimeAs("2020-09-12T09:41:25.000");
 
                     // Todo: fix validation
 //                    assertThat(beaTs.isSignatureValid(verifier))

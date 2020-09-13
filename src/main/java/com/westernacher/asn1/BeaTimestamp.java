@@ -17,6 +17,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -163,7 +164,10 @@ public class BeaTimestamp {
         return Arrays.equals(
                 messageDigest.digest(message),
                 timeStampToken.getTimeStampInfo().getMessageImprintDigest());
+    }
 
+    public Date getGenTime() {
+        return timeStampToken.getTimeStampInfo().getGenTime();
     }
 
     public boolean isSignatureValid(SignerInformationVerifier verifier) {
