@@ -13,6 +13,9 @@ import java.security.cert.X509Certificate;
  * Collection of utility methods.
  */
 public class Utils {
+    /**
+     * Creates a {@link SignerInformationVerifier} from an {@link InputStream} that represents a certificate.
+     */
     public static SignerInformationVerifier fromCertificate(InputStream inputStream) {
         try {
             final X509Certificate certificate = (X509Certificate) CertificateFactory
