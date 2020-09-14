@@ -1,0 +1,55 @@
+= Prüfung der beA-Zeitstempelsignatur
+
+Dieses Programm dient der Prüfung der beA-Zeitstempelsignatur, wie sie beispielsweise beim Nachrichtenexport erzeugt wird.
+Es ist die einzige Open-Source-Software, die diese Funktion erfüllt.
+Laden Sie die neueste Release der Software unter https://github.com/torstenwerner/crypto-misc/releases herunter.
+Es wird die Datei mit der Endung .jar benötigt.
+Außerdem wird eine Java-Runtime mindestens in Version 11 benötigt, welche u.a. von diesen Seiten heruntergeladen werden kann:
+
+* https://adoptopenjdk.net/
+* https://aws.amazon.com/de/corretto/
+* https://www.java.com/de/
+
+Es handelt sich um ein einfaches Kommandozeilenprogramm.
+Es wird beispielsweise folgendermaßen aufgerufen.
+Am Schluss der Zeile wird erst die ZIP-Datei mit dem Nachrichtenexport und danach die Signaturdatei angegeben.
+Die Zeilennummern sind nicht Bestandteil der Ausgabe sondern dienen der Erläuterung weiter unten.
+
+----
+         java -jar crypto-misc.jar beatsverify Nachricht44044226.zip Nachricht44044226.zip.p7s
+     1
+    ...
+     9
+    10  Status des proprietären Wrappers: 0 – Operation Okay
+    11
+    12  Die nachfolgenden Daten stammen aus der PKCS7-Zeitstempelsignatur.
+    13
+    14  Ist die Signatur gültig: ja
+    15  Ist der Zeitstempel gültig: ja
+    16  Wird die angegebene ZIP-Datei signiert: ja
+    17  Signaturzeitpunkt: 12.09.2020 09:41:25
+    18  Genauigkeit des Zeitstempels: 5.000000s
+    19  Policy-Id des Zeitstempeldienstes: 1.1.1 (ISO/IEC 9834-1)
+    20  Algorithmus des Hashes der ZIP-Datei: 2.16.840.1.101.3.4.2.1 (NIST SHA-256)
+    21  Hexadezimaler Hashwert der ZIP-Datei: 4da6bc1ca754a30828d8bf2ad66520fee2520d84b987fc4d39d64c47e5381f3b
+    22  Ergebnis der Zertifikatsprüfung: noch nicht implementiert
+
+----
+
+== Erklärung der Ausgabe
+
+* Zeile 10: die standardkonforme Signaturdatei im PKCS7-Format ist in der angegebenen Datei nur eingebettet.
+Dem PKCS7-Format sind zwei Statusinformationen vorangestellt (0 und Operation Okay), die selbst nicht kryptografisch signiert sind.
+Alle folgenden Ausgaben beziehen sich auf das PKCS7-Format und sind dementsprechend kryptografisch abgesichert.
+* Zeile 14: hier wird die Signatur geprüft.
+Es wird dabei noch nicht berücksichtigt, dass es sich um eine Zeitstempelsignatur handelt, wie sie in RFC 3161 beschrieben wird.
+* Zeile 15: zusätzlich zu Zeile 14 wird hier auch der Zeitstempel geprüft.
+* Zeile 16 zeigt an, ob die Signatur zum Hashwert der angegebenen ZIP-Datei passt.
+Die Prüfung ist nur erfolgreich, wenn sowohl Zeile 15 als auch Zeile 16 bejaht werden.
+* Zeilen 17 und 18 sollten selbsterklärend sein.
+* Zeile 19 zeigt die nach RFC 3161 obligatorische Policy-Id der timestamping authority an.
+Der hier angezeigte Wert 1.1.1 ist allerdings keine derartige Policy-Id.
+Daher erfüllt die Zeitstempelsignatur anscheinend nicht alle Anforderungen des RFC 3161.
+* Zeilen 20 und 21 sind technische Details über den Hashwert der ZIP-Datei.
+* Zeile 22: das Zeitstempelzertifikat wird derzeit noch nicht daraufhin geprüft, ob es widerrufen wurde.
+Dies wird möglicherweise in einer späteren Version ergänzt.

@@ -81,5 +81,6 @@ public class BeaTimestampVerifier {
         System.out.printf("Policy-Id des Zeitstempeldienstes: %s (%s)%n", beaTimestamp.getPolicyId(), resolveOid(beaTimestamp.getPolicyId()));
         System.out.printf("Algorithmus des Hashes der ZIP-Datei: %s (%s)%n", beaTimestamp.getHashAlgorithmId(), resolveOid(beaTimestamp.getHashAlgorithmId()));
         System.out.printf("Hexadezimaler Hashwert der ZIP-Datei: %s%n", beaTimestamp.getMessageImprintHex());
+        System.out.printf("Ergebnis der Zertifikatsprüfung: noch nicht implementiert%n");
     }
 }

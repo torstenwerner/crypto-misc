@@ -48,7 +48,7 @@ public class Application implements ApplicationRunner {
         System.out.println("usage:\n" +
                 "    java -jar crypto-misc.jar asn1 <fileName>\n" +
                 "    java -jar crypto-misc.jar er <erName> <certName> <dataName>\n" +
-                "    java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>" +
+                "    java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>\n" +
                 "    java -jar crypto-misc.jar beatsverify <zipFile> <signatureFile>");
     }
 }
