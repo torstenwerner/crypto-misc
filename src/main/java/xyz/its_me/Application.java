@@ -1,13 +1,20 @@
 package xyz.its_me;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import xyz.its_me.asn1.Asn1Parser;
 import xyz.its_me.asn1.EvidenceRecordParser;
 import xyz.its_me.cri.CertReqInfoGenerator;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.Security;
 
 public class Application {
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     public static void main(String[] args) throws IOException, GeneralSecurityException {
         if (args.length == 2 && "asn1".equalsIgnoreCase(args[0])) {
             Asn1Parser.parse(args[1]);

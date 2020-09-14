@@ -10,7 +10,6 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorException;
 import org.bouncycastle.tsp.GenTimeAccuracy;
 import org.bouncycastle.tsp.TimeStampToken;
@@ -21,14 +20,10 @@ import org.bouncycastle.x509.X509CertStoreSelector;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
 public class VerifyTST {
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
 
     private static PrintStream out = System.out;
 

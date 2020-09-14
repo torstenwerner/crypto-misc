@@ -1,24 +1,23 @@
 package xyz.its_me.asn1;
 
-import xyz.its_me.Utils;
 import org.assertj.core.api.Assertions;
 import org.bouncycastle.cms.SignerInformationVerifier;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
+import xyz.its_me.Application;
+import xyz.its_me.Utils;
 
 import java.io.IOException;
-import java.security.Security;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bouncycastle.cms.CMSSignedGenerator.DIGEST_SHA256;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
-@SpringBootTest(classes = BeaTimestampTest.class, webEnvironment = NONE)
+@SpringBootTest(classes = Application.class, webEnvironment = NONE)
 public class BeaTimestampTest {
 
     @Value("classpath:/brak/BRAK_beA_Zeitstempel.cer")
@@ -30,10 +29,6 @@ public class BeaTimestampTest {
     private byte[] zipBytes;
 
     private SignerInformationVerifier verifier;
-
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
 
     @BeforeEach
     public void beforeEach() throws IOException {
