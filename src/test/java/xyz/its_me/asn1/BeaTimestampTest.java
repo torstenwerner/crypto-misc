@@ -18,8 +18,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.bouncycastle.cms.CMSSignedGenerator.DIGEST_SHA256;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
-@SpringBootTest(classes = TimestampTest.class, webEnvironment = NONE)
-public class TimestampTest {
+@SpringBootTest(classes = BeaTimestampTest.class, webEnvironment = NONE)
+public class BeaTimestampTest {
 
     @Value("classpath:/brak/BRAK_beA_Zeitstempel.cer")
     private Resource tsCertificate;
