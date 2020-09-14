@@ -71,6 +71,7 @@ public class TimestampTest {
                     assertThat(beaTs.isMessageImprintValid(zipBytes)).isTrue();
                     assertThat(beaTs.getGenTime()).hasSameTimeAs("2020-09-12T09:41:25.000");
                     assertThat(beaTs.getGenTimeAccuracy().toString()).isEqualTo("5.000000");
+                    assertThat(beaTs.getPolicyId()).isEqualTo("1.1.1");
 
                     assertThat(beaTs.isSignatureValid(verifier)).isTrue();
                     assertThat(beaTs.isValid(verifier)).isTrue();

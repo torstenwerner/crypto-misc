@@ -175,6 +175,10 @@ public class BeaTimestamp {
         return timeStampToken.getTimeStampInfo().getGenTimeAccuracy();
     }
 
+    public String getPolicyId() {
+        return timeStampToken.getTimeStampInfo().getPolicy().getId();
+    }
+
     public boolean isSignatureValid(SignerInformationVerifier verifier) {
         try {
             return timeStampToken.isSignatureValid(verifier);
