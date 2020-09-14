@@ -1,0 +1,3 @@
+logging:
+  level:
+    xyz.its_me.Application: WARN
