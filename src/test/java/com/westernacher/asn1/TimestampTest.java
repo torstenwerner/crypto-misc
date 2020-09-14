@@ -25,7 +25,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(classes = TimestampTest.class, webEnvironment = NONE)
 public class TimestampTest {
 
-    @Value("classpath:/brak/BRAK_OCSP_CRL_Relay.cer")
+    @Value("classpath:/brak/BRAK_beA_Zeitstempel.cer")
     private Resource tsCertificate;
 
     @Value("classpath:/Nachricht44044226.zip")
@@ -72,10 +72,8 @@ public class TimestampTest {
                     assertThat(beaTs.getGenTime()).hasSameTimeAs("2020-09-12T09:41:25.000");
                     assertThat(beaTs.getGenTimeAccuracy().toString()).isEqualTo("5.000000");
 
-                    // Todo: fix validation
-//                    assertThat(beaTs.isSignatureValid(verifier))
-//                            .isTrue();
-//                    assertThat(beaTs.isValid(verifier)).isTrue();
+                    assertThat(beaTs.isSignatureValid(verifier)).isTrue();
+                    assertThat(beaTs.isValid(verifier)).isTrue();
                 });
     }
 }
