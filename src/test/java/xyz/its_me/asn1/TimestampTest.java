@@ -62,7 +62,7 @@ public class TimestampTest {
                     assertThat(beaTs.isMessageImprintValid(zipBytes)).isTrue();
                     assertThat(beaTs.getGenTime())
                             .withDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-                            .hasSameTimeAs("2020-09-12T09:41:25.000");
+                            .hasSameTimeAs("2020-09-12T07:41:25+00:00");
                     assertThat(beaTs.getGenTimeAccuracy().toString()).isEqualTo("5.000000");
                     assertThat(beaTs.getPolicyId()).isEqualTo("1.1.1");
 
