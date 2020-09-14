@@ -1,4 +1,4 @@
-package com.westernacher.hashtree;
+package xyz.its_me.hashtree;
 
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;

@@ -1,4 +1,4 @@
-package com.westernacher.cri;
+package xyz.its_me.cri;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.CertificationRequestInfo;

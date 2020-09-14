@@ -1,4 +1,4 @@
-package com.westernacher.asn1;
+package xyz.its_me.asn1;
 
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;

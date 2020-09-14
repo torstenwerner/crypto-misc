@@ -1,4 +1,4 @@
-package com.westernacher.asn1;
+package xyz.its_me.asn1;
 
 import java.io.IOException;
 import java.util.Properties;

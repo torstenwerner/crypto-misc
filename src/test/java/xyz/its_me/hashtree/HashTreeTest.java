@@ -1,10 +1,8 @@
-package com.westernacher.hashtree;
+package xyz.its_me.hashtree;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.List;

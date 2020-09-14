@@ -1,6 +1,6 @@
-package com.westernacher.asn1;
+package xyz.its_me.asn1;
 
-import com.westernacher.hashtree.HashTreeVerifier;
+import xyz.its_me.hashtree.HashTreeVerifier;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.tsp.TimeStampToken;

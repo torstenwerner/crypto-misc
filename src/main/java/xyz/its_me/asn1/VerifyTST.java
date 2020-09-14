@@ -1,4 +1,4 @@
-package com.westernacher.asn1;
+package xyz.its_me.asn1;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;

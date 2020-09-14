@@ -1,6 +1,7 @@
-package com.westernacher.asn1;
+package xyz.its_me.asn1;
 
-import com.westernacher.Utils;
+import xyz.its_me.Utils;
+import org.assertj.core.api.Assertions;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +50,7 @@ public class TimestampTest {
         final byte[] govBytes = govResource.getInputStream().readAllBytes();
         final Optional<BeaTimestamp> beaTimestamp = BeaTimestamp.of(govBytes);
 
-        assertThat(beaTimestamp)
+        Assertions.assertThat(beaTimestamp)
                 .get()
                 .satisfies(beaTs -> {
                     assertThat(beaTs.getStatus()).isEqualTo(0);

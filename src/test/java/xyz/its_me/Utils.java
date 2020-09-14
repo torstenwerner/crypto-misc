@@ -1,4 +1,4 @@
-package com.westernacher;
+package xyz.its_me;
 
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;

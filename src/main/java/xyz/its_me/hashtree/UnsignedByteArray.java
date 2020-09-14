@@ -1,4 +1,4 @@
-package com.westernacher.hashtree;
+package xyz.its_me.hashtree;
 
 public class UnsignedByteArray implements Comparable<UnsignedByteArray> {
     final private byte[] array;

@@ -1,8 +1,8 @@
-package com.westernacher;
+package xyz.its_me;
 
-import com.westernacher.asn1.Asn1Parser;
-import com.westernacher.asn1.EvidenceRecordParser;
-import com.westernacher.cri.CertReqInfoGenerator;
+import xyz.its_me.asn1.Asn1Parser;
+import xyz.its_me.asn1.EvidenceRecordParser;
+import xyz.its_me.cri.CertReqInfoGenerator;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
