@@ -1,6 +1,5 @@
 package com.westernacher.asn1;
 
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -44,7 +43,7 @@ public class TimestampTest {
         final X509Certificate certificate = (X509Certificate) CertificateFactory
                 .getInstance("X509")
                 .generateCertificate(tsCertificate.getInputStream());
-        zipBytes = IOUtils.toByteArray(zipResource.getInputStream());
+        zipBytes = zipResource.getInputStream().readAllBytes();
         verifier = new JcaSimpleSignerInfoVerifierBuilder()
                 .setProvider("BC")
                 .build(certificate);
@@ -56,7 +55,7 @@ public class TimestampTest {
 
         assertThat(govResource).isNotNull();
 
-        final byte[] govBytes = IOUtils.toByteArray(govResource.getInputStream());
+        final byte[] govBytes = govResource.getInputStream().readAllBytes();
         final Optional<BeaTimestamp> beaTimestamp = BeaTimestamp.of(govBytes);
 
         assertThat(beaTimestamp)

@@ -1,6 +1,5 @@
 package com.westernacher.asn1;
 
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -77,8 +76,8 @@ public class VerifyTST {
                         for (int i = 0; i < sequence.size(); i++) {
                             ASN1TaggedObject object = (ASN1TaggedObject) sequence.getObjectAt(i);
                             if (object.getTagNo() == 1) {
-                                try {
-                                    IOUtils.write(object.getObject().getEncoded(), new FileOutputStream("/tmp/attr-cert.der"));
+                                try (final FileOutputStream outputStream = new FileOutputStream("/tmp/attr-cert.der")) {
+                                    outputStream.write(object.getObject().getEncoded());
                                     X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.getObject().getEncoded());
                                     out.println("        attribute certificate from issuer " + attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
                                     for (org.bouncycastle.asn1.x509.Attribute attribute : attrHolder.getAttributes()) {

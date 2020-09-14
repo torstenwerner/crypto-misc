@@ -1,7 +1,6 @@
 package com.westernacher.asn1;
 
 import com.westernacher.hashtree.HashTreeVerifier;
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.tsp.TimeStampToken;
@@ -157,7 +156,8 @@ public class EvidenceRecordParser {
     }
 
     // e.g. sample/test02.txt-er.der sample/tss-signtrust-50.cer sample/test02.txt
-    public static void parse(String erName, String certName, String dataName) throws IOException, GeneralSecurityException {
+    public static void parse(
+            String erName, String certName, String dataName) throws IOException, GeneralSecurityException {
         if (!new File(erName).canRead()) {
             System.err.println(format("Cannot read file %s.", erName));
             return;
@@ -196,7 +196,7 @@ public class EvidenceRecordParser {
 
         HashTreeVerifier hashTreeVerifier = new HashTreeVerifier(timestampVerifier.getDigest());
         MessageDigest md = MessageDigest.getInstance("SHA-256"); // FIXME: algorithm should be calculated from timestamptoken
-        byte[] document = IOUtils.toByteArray(new FileInputStream(dataName));
+        byte[] document = new FileInputStream(dataName).readAllBytes();
         hashTreeVerifier.verify(parser.getHashtree(), md.digest(document));
 
         System.out.println("evidence record successfully verified");
