@@ -1,9 +1,8 @@
 package com.westernacher.asn1;
 
+import com.westernacher.Utils;
 import org.bouncycastle.cms.SignerInformationVerifier;
-import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,9 +11,6 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,14 +35,9 @@ public class TimestampTest {
     }
 
     @BeforeEach
-    public void beforeEach() throws CertificateException, OperatorCreationException, IOException {
-        final X509Certificate certificate = (X509Certificate) CertificateFactory
-                .getInstance("X509")
-                .generateCertificate(tsCertificate.getInputStream());
+    public void beforeEach() throws IOException {
         zipBytes = zipResource.getInputStream().readAllBytes();
-        verifier = new JcaSimpleSignerInfoVerifierBuilder()
-                .setProvider("BC")
-                .build(certificate);
+        verifier = Utils.fromCertificate(tsCertificate.getInputStream());
     }
 
     @Test
