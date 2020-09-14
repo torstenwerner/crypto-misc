@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import xyz.its_me.asn1.Asn1Parser;
+import xyz.its_me.asn1.BeaTimestampVerifier;
 import xyz.its_me.asn1.EvidenceRecordParser;
 import xyz.its_me.cri.CertReqInfoGenerator;
 
@@ -40,9 +41,14 @@ public class Application implements ApplicationRunner {
             CertReqInfoGenerator.generate(nonOptionArgs.get(1), nonOptionArgs.get(2), nonOptionArgs.get(3));
             return;
         }
+        if (nonOptionArgs.size() == 3 && "beatsverify".equalsIgnoreCase(nonOptionArgs.get(0))) {
+            BeaTimestampVerifier.verify(nonOptionArgs.get(1), nonOptionArgs.get(2));
+            return;
+        }
         System.out.println("usage:\n" +
                 "    java -jar crypto-misc.jar asn1 <fileName>\n" +
                 "    java -jar crypto-misc.jar er <erName> <certName> <dataName>\n" +
-                "    java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>");
+                "    java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>" +
+                "    java -jar crypto-misc.jar beatsverify <zipFile> <signatureFile>");
     }
 }
