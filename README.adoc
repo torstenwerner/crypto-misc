@@ -32,10 +32,9 @@ java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>
 
 Please fetch a binary release from link:https://github.com/torstenwerner/crypto-misc/releases[github's release page].
 
-== Continuous integration thanks to snap-ci.com
+== Continuous integration thanks to circleci.com
 
-Build image:https://snap-ci.com/torstenwerner/crypto-misc/branch/master/build_image[status]
-at link:https://snap-ci.com/torstenwerner/crypto-misc/branch/master[Snap CI]
+image:https://circleci.com/gh/torstenwerner/crypto-misc.svg?style=svg["torstenwerner", link="https://circleci.com/gh/torstenwerner/crypto-misc"]
 
 == Searching a (e.g. timestamp) certificate by issuer DN and serial number
 
