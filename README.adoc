@@ -8,6 +8,10 @@ This project implements:
 * an evidence record verifier, and
 * a generator of CertificateRequestInfo.
 
+More information about the beA timestamp verifier in german language can be found in link:bea.adoc[].
+
+Mehr Informationen über die beA-Zeitstempelprüfung finden Sie in link:bea.adoc[].
+
 Everything is pretty low level.
 Sorry for that.
 This parser has some advantages over other ASN.1 parsers.

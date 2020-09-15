@@ -1,5 +1,7 @@
 = Prüfung der beA-Zeitstempelsignatur
 
+This file is in german language. Please navigate to link:README.adoc[] for other information.
+
 Dieses Programm dient der Prüfung der beA-Zeitstempelsignatur, wie sie beispielsweise beim Nachrichtenexport erzeugt wird.
 Es ist die einzige Open-Source-Software, die diese Funktion erfüllt.
 Laden Sie die neueste Release der Software unter https://github.com/torstenwerner/crypto-misc/releases herunter.
