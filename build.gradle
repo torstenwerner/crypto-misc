@@ -36,6 +36,6 @@ test {
 }
 
 wrapper {
-    gradleVersion = "6.9.4"
+    gradleVersion = "7.6.1"
     distributionType = Wrapper.DistributionType.ALL
 }
