@@ -16,13 +16,13 @@ import org.bouncycastle.tsp.GenTimeAccuracy;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.tsp.TimeStampTokenInfo;
 import org.bouncycastle.util.Store;
-import org.bouncycastle.x509.X509CertStoreSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -55,15 +55,15 @@ public class VerifyTST {
             for (Map.Entry<ASN1ObjectIdentifier, Attribute> entry : attributes.entrySet()) {
                 final String oid = entry.getKey().getId();
                 logger.info("oid = {} ({})", oid, OidProperties.resolveOid(oid));
-                for (ASN1Encodable value : entry.getValue().getAttributeValues()) {
+                Arrays.stream(entry.getValue().getAttributeValues()).forEach(attributeValue -> {
                     logger.info("    value");
                     if (entry.getKey().getId().equals("1.2.840.113549.1.9.16.2.18")) {
-                        ASN1Sequence sequence = (ASN1Sequence) value.toASN1Primitive();
-                        sequence.forEach(this::verifyAttributes);
+                        ASN1Sequence sequence = (ASN1Sequence) attributeValue.toASN1Primitive();
+                        sequence.forEach(this::verifySignerAttribute);
                     } else {
-                        new Asn1Parser(value.toASN1Primitive(), 2).print();
+                        new Asn1Parser(attributeValue.toASN1Primitive(), 2).print();
                     }
-                }
+                });
             }
             logger.info("signed attribute count: {}", attributes.size());
         } else {
@@ -106,8 +106,8 @@ public class VerifyTST {
         }
     }
 
-    private void verifyAttributes(ASN1Encodable attributes) {
-        ASN1TaggedObject object = (ASN1TaggedObject) attributes;
+    private void verifySignerAttribute(ASN1Encodable signerAttribute) {
+        ASN1TaggedObject object = (ASN1TaggedObject) signerAttribute;
         if (object.getTagNo() == 1) {
             try (final FileOutputStream outputStream = new FileOutputStream("/tmp/attr-cert.der")) {
                 outputStream.write(object.toASN1Primitive().getEncoded());
