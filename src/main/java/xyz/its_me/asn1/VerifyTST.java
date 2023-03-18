@@ -44,17 +44,7 @@ public class VerifyTST {
     }
 
     public void verify() {
-        if (certificate != null) {
-            try {
-                validate();
-            } catch (RuntimeException re) {
-                throw re;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            logger.info("timestamp not validated without certificate");
-        }
+        validateCertificate();
 
         Store<X509CertificateHolder> store = token.getCertificates();
         logger.info("certs = {}", store.getMatches(new X509CertStoreSelector()));
@@ -69,24 +59,7 @@ public class VerifyTST {
                     logger.info("    value");
                     if (entry.getKey().getId().equals("1.2.840.113549.1.9.16.2.18")) {
                         ASN1Sequence sequence = (ASN1Sequence) value.toASN1Primitive();
-                        for (int i = 0; i < sequence.size(); i++) {
-                            ASN1TaggedObject object = (ASN1TaggedObject) sequence.getObjectAt(i);
-                            if (object.getTagNo() == 1) {
-                                try (final FileOutputStream outputStream = new FileOutputStream("/tmp/attr-cert.der")) {
-                                    outputStream.write(object.toASN1Primitive().getEncoded());
-                                    X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.toASN1Primitive().getEncoded());
-                                    logger.info("        attribute certificate from issuer {}", attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
-                                    for (org.bouncycastle.asn1.x509.Attribute attribute : attrHolder.getAttributes()) {
-                                        String attrOid = attribute.getAttrType().getId();
-                                        logger.info("            attribute: {} ({})", attrOid, OidProperties.resolveOid(attrOid));
-                                    }
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            } else {
-                                logger.info("        tagged object #{}", object.getTagNo());
-                            }
-                        }
+                        sequence.forEach(this::verifyAttributes);
                     } else {
                         new Asn1Parser(value.toASN1Primitive(), 2).print();
                     }
@@ -117,6 +90,39 @@ public class VerifyTST {
         logger.info("accuracy: {} s, {} ms, {} us", gta.getSeconds(), gta.getMillis(), gta.getMicros());
 
         digest = tsti.getMessageImprintDigest();
+    }
+
+    private void validateCertificate() {
+        if (certificate != null) {
+            try {
+                validate();
+            } catch (RuntimeException re) {
+                throw re;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            logger.info("timestamp not validated without certificate");
+        }
+    }
+
+    private void verifyAttributes(ASN1Encodable attributes) {
+        ASN1TaggedObject object = (ASN1TaggedObject) attributes;
+        if (object.getTagNo() == 1) {
+            try (final FileOutputStream outputStream = new FileOutputStream("/tmp/attr-cert.der")) {
+                outputStream.write(object.toASN1Primitive().getEncoded());
+                X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.toASN1Primitive().getEncoded());
+                logger.info("        attribute certificate from issuer {}", attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
+                for (org.bouncycastle.asn1.x509.Attribute attribute : attrHolder.getAttributes()) {
+                    String attrOid = attribute.getAttrType().getId();
+                    logger.info("            attribute: {} ({})", attrOid, OidProperties.resolveOid(attrOid));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            logger.info("        tagged object #{}", object.getTagNo());
+        }
     }
 
     private void validate() throws OperatorException, CMSException {
