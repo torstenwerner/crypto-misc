@@ -113,10 +113,9 @@ public class VerifyTST {
                 outputStream.write(object.toASN1Primitive().getEncoded());
                 X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.toASN1Primitive().getEncoded());
                 logger.info("        attribute certificate from issuer {}", attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
-                for (org.bouncycastle.asn1.x509.Attribute attribute : attrHolder.getAttributes()) {
-                    String attrOid = attribute.getAttrType().getId();
-                    logger.info("            attribute: {} ({})", attrOid, OidProperties.resolveOid(attrOid));
-                }
+                Arrays.stream(attrHolder.getAttributes())
+                        .map(attribute -> attribute.getAttrType().getId())
+                        .forEach(attrOid -> logger.info("            attribute: {} ({})", attrOid, OidProperties.resolveOid(attrOid)));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
