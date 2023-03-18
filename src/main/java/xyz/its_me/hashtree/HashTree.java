@@ -10,6 +10,7 @@ public abstract class HashTree {
 
     /**
      * can be called after digestify()
+     *
      * @return aggregated / root Digest for the (sub) tree
      */
     public byte[] getAggregatedDigest() {
@@ -18,6 +19,7 @@ public abstract class HashTree {
 
     /**
      * adds a new digest to the tree, must be called before digestify()
+     *
      * @param digest
      */
     public abstract void addDigest(byte[] digest);
@@ -35,6 +37,7 @@ public abstract class HashTree {
 
     /**
      * calculates the aggregated digests
+     *
      * @throws GeneralSecurityException
      */
     public abstract void digestify() throws GeneralSecurityException;
@@ -43,10 +46,11 @@ public abstract class HashTree {
 
     /**
      * must be called after digestify()
+     *
      * @return the reduced tree for digest
      */
     public List<List<byte[]>> getReducedTree(byte[] digest) {
-        final List<List<byte[]>> list = new ArrayList<List<byte[]>>();
+        final List<List<byte[]>> list = new ArrayList<>();
         updateDigestList(digest, list);
         return list;
     }

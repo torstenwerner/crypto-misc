@@ -2,13 +2,10 @@ package xyz.its_me.hashtree;
 
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 class IndirectHashTree extends HashTree {
-    private final static int MAX_INDIRECT_LEVEL = 5;
+    private static final int MAX_INDIRECT_LEVEL = 5;
 
     private final TreeMap<Byte, HashTree> data;
     private final int level;
@@ -32,11 +29,10 @@ class IndirectHashTree extends HashTree {
 
     @Override
     public void digestify() throws GeneralSecurityException {
-        final TreeSet<UnsignedByteArray> aggregatedSet = new TreeSet<UnsignedByteArray>();
-        for (Byte key : data.keySet()) {
-            final HashTree hashTree = data.get(key);
-            hashTree.digestify();
-            aggregatedSet.add(new UnsignedByteArray(hashTree.aggregatedDigest));
+        final TreeSet<UnsignedByteArray> aggregatedSet = new TreeSet<>();
+        for (HashTree value : data.values()) {
+            value.digestify();
+            aggregatedSet.add(new UnsignedByteArray(value.aggregatedDigest));
         }
         final MessageDigest md = getMessageDigest();
         for (UnsignedByteArray element : aggregatedSet) {
@@ -52,10 +48,10 @@ class IndirectHashTree extends HashTree {
         data.get(firstKey).updateDigestList(digest, list);
 
         // add aggregated digests of all subtrees
-        final List<byte[]> newElement = new ArrayList<byte[]>();
-        for (Byte secondKey : data.keySet()) {
-            if (firstKey != secondKey) {
-                newElement.add(data.get(secondKey).aggregatedDigest);
+        final List<byte[]> newElement = new ArrayList<>();
+        for (Map.Entry<Byte, HashTree> entry : data.entrySet()) {
+            if (firstKey != entry.getKey()) {
+                newElement.add(entry.getValue().aggregatedDigest);
             }
         }
         list.add(newElement);

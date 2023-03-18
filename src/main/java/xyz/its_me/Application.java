@@ -10,8 +10,6 @@ import xyz.its_me.asn1.BeaTimestampVerifier;
 import xyz.its_me.asn1.EvidenceRecordParser;
 import xyz.its_me.cri.CertReqInfoGenerator;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.Security;
 import java.util.List;
 
@@ -23,7 +21,8 @@ public class Application implements ApplicationRunner {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);;
+        SpringApplication.run(Application.class, args);
+        ;
     }
 
     @Override

@@ -19,9 +19,9 @@ import static xyz.its_me.asn1.OidProperties.resolveOid;
  */
 public class BeaTimestampVerifier {
 
-    private byte[] zipBytes;
+    private final byte[] zipBytes;
 
-    private byte[] signatureBytes;
+    private final byte[] signatureBytes;
 
     public BeaTimestampVerifier(byte[] zipBytes, byte[] signatureBytes) {
         this.zipBytes = zipBytes;
@@ -41,9 +41,8 @@ public class BeaTimestampVerifier {
             return;
         }
 
-        try {
-            final FileInputStream zipStream = new FileInputStream(zipFile);
-            final FileInputStream signatureStream = new FileInputStream(signatureFile);
+        try (FileInputStream zipStream = new FileInputStream(zipFile);
+             FileInputStream signatureStream = new FileInputStream(signatureFile)) {
             final BeaTimestampVerifier verifier = new BeaTimestampVerifier(zipStream.readAllBytes(), signatureStream.readAllBytes());
             verifier.execute();
         } catch (IOException e) {

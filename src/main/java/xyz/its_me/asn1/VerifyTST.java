@@ -4,6 +4,7 @@ import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1TaggedObject;
+import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.cert.X509AttributeCertificateHolder;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
@@ -22,13 +23,14 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class VerifyTST {
 
-    private static PrintStream out = System.out;
+    private static final PrintStream out = System.out;
 
-    private TimeStampToken token;
-    private X509Certificate certificate;
+    private final TimeStampToken token;
+    private final X509Certificate certificate;
     private byte[] digest;
 
     public byte[] getDigest() {
@@ -44,12 +46,10 @@ public class VerifyTST {
         if (certificate != null) {
             try {
                 validate();
+            } catch (RuntimeException re) {
+                throw re;
             } catch (Exception e) {
-                if (e instanceof RuntimeException) {
-                    throw (RuntimeException) e;
-                } else {
-                    throw new RuntimeException(e);
-                }
+                throw new RuntimeException(e);
             }
         } else {
             out.println("timestamp not validated without certificate");
@@ -61,31 +61,29 @@ public class VerifyTST {
             out.println("signed attribute count: " + token.getSignedAttributes().size());
             @SuppressWarnings("unchecked")
             Hashtable<ASN1ObjectIdentifier, org.bouncycastle.asn1.cms.Attribute> attributes = token.getSignedAttributes().toHashtable();
-            for (ASN1ObjectIdentifier key : attributes.keySet()) {
-                final String oid = key.getId();
+            for (Map.Entry<ASN1ObjectIdentifier, Attribute> entry : attributes.entrySet()) {
+                final String oid = entry.getKey().getId();
                 out.println("oid = " + oid + " (" + OidProperties.resolveOid(oid) + ")");
-                for (ASN1Encodable value : attributes.get(key).getAttributeValues()) {
+                for (ASN1Encodable value : entry.getValue().getAttributeValues()) {
                     out.println("    value");
-                    if (key.getId().equals("1.2.840.113549.1.9.16.2.18")) {
+                    if (entry.getKey().getId().equals("1.2.840.113549.1.9.16.2.18")) {
                         ASN1Sequence sequence = (ASN1Sequence) value.toASN1Primitive();
                         for (int i = 0; i < sequence.size(); i++) {
                             ASN1TaggedObject object = (ASN1TaggedObject) sequence.getObjectAt(i);
                             if (object.getTagNo() == 1) {
                                 try (final FileOutputStream outputStream = new FileOutputStream("/tmp/attr-cert.der")) {
-                                    outputStream.write(object.getObject().getEncoded());
+                                    outputStream.write(object.toASN1Primitive().getEncoded());
                                     X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.getObject().getEncoded());
                                     out.println("        attribute certificate from issuer " + attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
                                     for (org.bouncycastle.asn1.x509.Attribute attribute : attrHolder.getAttributes()) {
                                         String attrOid = attribute.getAttrType().getId();
                                         out.println("            attribute: " + attrOid + " (" + OidProperties.resolveOid(attrOid) + ")");
-                                        //									new Asn1Parser(attribute.getAttrValues(), 4).print();
                                     }
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
                             } else {
                                 out.println("        tagged object #" + object.getTagNo());
-//								new Asn1Parser(value.toASN1Primitive(), 3).print();
                             }
                         }
                     } else {

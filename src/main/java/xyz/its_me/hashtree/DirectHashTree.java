@@ -31,7 +31,7 @@ class DirectHashTree extends HashTree {
     @Override
     protected void updateDigestList(byte[] digest, List<List<byte[]>> list) {
         // add all document digests
-        List<byte[]> firstElement = new ArrayList<byte[]>();
+        List<byte[]> firstElement = new ArrayList<>();
         for (UnsignedByteArray buffer : data) {
             firstElement.add(buffer.getArray());
         }

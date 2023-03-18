@@ -1,7 +1,7 @@
 package xyz.its_me.hashtree;
 
 public class UnsignedByteArray implements Comparable<UnsignedByteArray> {
-    final private byte[] array;
+    private final byte[] array;
 
     public byte[] getArray() {
         return array;

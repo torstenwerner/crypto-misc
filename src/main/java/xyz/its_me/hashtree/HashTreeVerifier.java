@@ -52,11 +52,12 @@ public class HashTreeVerifier {
 
     /**
      * verifies that digest and reduced tree match the tree's root digest
+     *
      * @param reducedTree
      * @param digest
      * @throws GeneralSecurityException
      */
-    public void verify(List<List<byte[]>> reducedTree, byte[] digest) throws GeneralSecurityException {
+    public void verify(List<List<byte[]>> reducedTree, byte[] digest) {
         debug("doc digest", digest);
 
         checkTree(reducedTree);
@@ -98,12 +99,10 @@ public class HashTreeVerifier {
     private MessageDigest createMessageDigest() {
         try {
             return MessageDigest.getInstance("SHA-256");
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            } else {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         }
     }
 }

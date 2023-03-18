@@ -13,6 +13,11 @@ import java.security.cert.X509Certificate;
  * Collection of utility methods.
  */
 public class Utils {
+
+    private Utils() {
+        throw new UnsupportedOperationException("Utils is an utility class.");
+    }
+
     /**
      * Creates a {@link SignerInformationVerifier} from an {@link InputStream} that represents a certificate.
      */

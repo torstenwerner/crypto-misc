@@ -12,14 +12,14 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 
-import static java.lang.String.format;
-
 public class Asn1Parser {
-    private StringBuffer output = new StringBuffer();
+    private final StringBuilder output = new StringBuilder();
 
     private void addMessage(String message) {
         final String indentation = StringUtils.repeat(" ", indent * 4);
-        output.append(indentation + message + "\n");
+        output.append(indentation)
+                .append(message)
+                .append("\n");
     }
 
     private void mergeMessagesTo(Asn1Parser targetParser) {
@@ -27,7 +27,7 @@ public class Asn1Parser {
     }
 
     public void print() {
-        System.out.print(output.toString());
+        System.out.print(output);
     }
 
     private void parse() {
@@ -59,7 +59,7 @@ public class Asn1Parser {
         } else if (primitive instanceof ASN1TaggedObject) {
             ASN1TaggedObject taggedObject = (ASN1TaggedObject) primitive;
             addMessage("tagged object, #" + taggedObject.getTagNo());
-            new Asn1Parser(taggedObject.getObject(), indent + 1).mergeMessagesTo(this);
+            new Asn1Parser(taggedObject.toASN1Primitive(), indent + 1).mergeMessagesTo(this);
         } else if (primitive instanceof DERNull) {
             addMessage("null");
         } else if (primitive instanceof ASN1UTCTime) {
@@ -97,18 +97,13 @@ public class Asn1Parser {
             final byte[] bytes = octetString.getOctets();
             addMessage("octet string, " + bytes.length + " bytes, content = " + StringUtils.abbreviate(octetString.toString(), 64));
             new Asn1Parser(bytes, indent + 1).mergeMessagesTo(this);
-        } else if (primitive instanceof DERApplicationSpecific) {
-            DERApplicationSpecific specific = (DERApplicationSpecific) primitive;
-            final byte[] bytes = specific.getContents();
-            addMessage("application specific data, tag = " + specific.getApplicationTag() + ", " + bytes.length + " bytes");
-            new Asn1Parser(bytes, indent + 1).mergeMessagesTo(this);
         } else {
             addMessage("unknown object, class = " + primitive.getClass());
         }
     }
 
     private ASN1Primitive primitive;
-    private int indent;
+    private final int indent;
 
     public Asn1Parser(ASN1Primitive primitive, int indent) {
         this.primitive = primitive;
@@ -125,7 +120,7 @@ public class Asn1Parser {
                 addMessage("found printable ASCII string (" + decodedString + ")");
                 return;
             }
-        } catch (CharacterCodingException e) {
+        } catch (CharacterCodingException ignored) {
         }
         try {
             primitive = ASN1Primitive.fromByteArray(bytes);
@@ -142,23 +137,25 @@ public class Asn1Parser {
 
     public static void parse(String filename) throws IOException {
         if (!new File(filename).canRead()) {
-            System.err.println(format("Cannot read file %s.", filename));
+            System.err.printf("Cannot read file %s.%n", filename);
             return;
         }
 
         ASN1Primitive object;
-        try {
-            ASN1InputStream asn1InputStream = new ASN1InputStream(new FileInputStream(filename));
+        try (var inputStream = new FileInputStream(filename)) {
+            ASN1InputStream asn1InputStream = new ASN1InputStream(inputStream);
             object = asn1InputStream.readObject();
         } catch (IOException e) {
             // try PEM as a fallback
             System.out.println("Failed to read DER file - try to fallback to PEM format.");
-            final PemReader pemReader = new PemReader(new FileReader(filename));
-            final byte[] pemContent = pemReader.readPemObject().getContent();
-            ASN1InputStream asn1InputStream = new ASN1InputStream(pemContent);
-            object = asn1InputStream.readObject();
+            try (PemReader pemReader = new PemReader(new FileReader(filename))) {
+                final byte[] pemContent = pemReader.readPemObject().getContent();
+                try (ASN1InputStream asn1InputStream = new ASN1InputStream(pemContent)) {
+                    object = asn1InputStream.readObject();
+                }
+            }
         }
         new Asn1Parser(object, 0).print();
-        System.out.println("size of encoded object: " + object.getEncoded().length);
+        System.out.printf("size of encoded object: %d%n", object.getEncoded().length);
     }
 }
