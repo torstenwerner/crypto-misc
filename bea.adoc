@@ -9,20 +9,12 @@ Es ist die einzige Open-Source-Software, die diese Funktion erfüllt.
 
 Laden Sie die neueste Release unter https://github.com/torstenwerner/crypto-misc/releases herunter.
 Es wird die Datei mit der Endung .jar benötigt.
-Außerdem wird eine Java-Runtime mindestens in Version 11 benötigt, welche u.a. von diesen Seiten heruntergeladen werden kann:
-
-* https://adoptopenjdk.net/
-* https://aws.amazon.com/de/corretto/
-* https://www.java.com/de/
+Außerdem wird eine Java-Runtime mindestens in Version 17 benötigt.
 
 Die Java-Version können Sie mit einem einfachen Kommando prüfen:
 
 ----
 java --version
-
-openjdk 11.0.8 2020-07-14
-OpenJDK Runtime Environment AdoptOpenJDK (build 11.0.8+10)
-OpenJDK 64-Bit Server VM AdoptOpenJDK (build 11.0.8+10, mixed mode)
 ----
 
 == Aufruf
