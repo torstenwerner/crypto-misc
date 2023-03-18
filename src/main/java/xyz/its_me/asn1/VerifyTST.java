@@ -17,17 +17,18 @@ import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.tsp.TimeStampTokenInfo;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.x509.X509CertStoreSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 import java.util.Map;
 
 public class VerifyTST {
 
-    private static final PrintStream out = System.out;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final TimeStampToken token;
     private final X509Certificate certificate;
@@ -52,20 +53,20 @@ public class VerifyTST {
                 throw new RuntimeException(e);
             }
         } else {
-            out.println("timestamp not validated without certificate");
+            logger.info("timestamp not validated without certificate");
         }
 
         Store<X509CertificateHolder> store = token.getCertificates();
-        out.println("certs = " + store.getMatches(new X509CertStoreSelector()));
+        logger.info("certs = {}", store.getMatches(new X509CertStoreSelector()));
         if (token.getSignedAttributes() != null) {
-            out.println("signed attribute count: " + token.getSignedAttributes().size());
+            logger.info("signed attribute count: {}", token.getSignedAttributes().size());
             @SuppressWarnings("unchecked")
             Hashtable<ASN1ObjectIdentifier, org.bouncycastle.asn1.cms.Attribute> attributes = token.getSignedAttributes().toHashtable();
             for (Map.Entry<ASN1ObjectIdentifier, Attribute> entry : attributes.entrySet()) {
                 final String oid = entry.getKey().getId();
-                out.println("oid = " + oid + " (" + OidProperties.resolveOid(oid) + ")");
+                logger.info("oid = {} ({})", oid, OidProperties.resolveOid(oid));
                 for (ASN1Encodable value : entry.getValue().getAttributeValues()) {
-                    out.println("    value");
+                    logger.info("    value");
                     if (entry.getKey().getId().equals("1.2.840.113549.1.9.16.2.18")) {
                         ASN1Sequence sequence = (ASN1Sequence) value.toASN1Primitive();
                         for (int i = 0; i < sequence.size(); i++) {
@@ -73,17 +74,17 @@ public class VerifyTST {
                             if (object.getTagNo() == 1) {
                                 try (final FileOutputStream outputStream = new FileOutputStream("/tmp/attr-cert.der")) {
                                     outputStream.write(object.toASN1Primitive().getEncoded());
-                                    X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.getObject().getEncoded());
-                                    out.println("        attribute certificate from issuer " + attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
+                                    X509AttributeCertificateHolder attrHolder = new X509AttributeCertificateHolder(object.toASN1Primitive().getEncoded());
+                                    logger.info("        attribute certificate from issuer {}", attrHolder.getIssuer().getNames()[0] + " saved to /tmp/attr-cert.der");
                                     for (org.bouncycastle.asn1.x509.Attribute attribute : attrHolder.getAttributes()) {
                                         String attrOid = attribute.getAttrType().getId();
-                                        out.println("            attribute: " + attrOid + " (" + OidProperties.resolveOid(attrOid) + ")");
+                                        logger.info("            attribute: {} ({})", attrOid, OidProperties.resolveOid(attrOid));
                                     }
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
                             } else {
-                                out.println("        tagged object #" + object.getTagNo());
+                                logger.info("        tagged object #{}", object.getTagNo());
                             }
                         }
                     } else {
@@ -91,29 +92,29 @@ public class VerifyTST {
                     }
                 }
             }
-            out.println("signed attribute count: " + attributes.size());
+            logger.info("signed attribute count: {}", attributes.size());
         } else {
-            out.println("no unsigned attributes");
+            logger.info("no unsigned attributes");
         }
         if (token.getUnsignedAttributes() != null) {
-            out.println("unsigned attribute count: " + token.getUnsignedAttributes().size());
+            logger.info("unsigned attribute count: {}", token.getUnsignedAttributes().size());
         } else {
-            out.println("no unsigned attributes");
+            logger.info("no unsigned attributes");
         }
 
         TimeStampTokenInfo tsti = token.getTimeStampInfo();
-        out.println("TSA: " + tsti.getTsa());
+        logger.info("TSA: {}", tsti.getTsa());
         String oid = tsti.getPolicy().getId();
-        out.println("policy: " + oid + " (" + OidProperties.resolveOid(oid) + ")");
-        out.println("serial: " + tsti.getSerialNumber());
+        logger.info("policy: {} ({})", oid, OidProperties.resolveOid(oid));
+        logger.info("serial: {}", tsti.getSerialNumber());
         oid = tsti.getMessageImprintAlgOID().getId();
-        out.println("imprint algorithm: " + oid + " (" + OidProperties.resolveOid(oid) + ")");
+        logger.info("imprint algorithm: {} ({})", oid, OidProperties.resolveOid(oid));
         oid = tsti.getHashAlgorithm().getAlgorithm().getId();
-        out.println("hash algorithm: " + oid + " (" + OidProperties.resolveOid(oid) + ")");
-        out.println("time stamp: " + tsti.getGenTime());
+        logger.info("hash algorithm: {} ({})", oid, OidProperties.resolveOid(oid));
+        logger.info("time stamp: {}", tsti.getGenTime());
 
         GenTimeAccuracy gta = tsti.getGenTimeAccuracy();
-        out.println("accuracy: " + gta.getSeconds() + " s, " + gta.getMillis() + " ms, " + gta.getMicros() + " us");
+        logger.info("accuracy: {} s, {} ms, {} us", gta.getSeconds(), gta.getMillis(), gta.getMicros());
 
         digest = tsti.getMessageImprintDigest();
     }
@@ -122,15 +123,15 @@ public class VerifyTST {
         final SignerInformationVerifier verifier = new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(certificate);
         try {
             token.validate(verifier);
-            out.println("timestamp successfully validated");
+            logger.info("timestamp successfully validated");
         } catch (Exception e) {
-            out.println("ERROR: validation failed");
+            logger.info("ERROR: validation failed");
             final SignerInformation signerInformation = token.toCMSSignedData().getSignerInfos().get(token.getSID());
             if (signerInformation.verify(verifier)) {
-                System.out.println("    CMS level successfully validated");
+                logger.info("    CMS level successfully validated");
             } else {
-                System.out.println("    CMS level validation failed for: " + signerInformation.getSID().getIssuer() +
-                        " serial " + signerInformation.getSID().getSerialNumber());
+                logger.info("    CMS level validation failed for: {} serial {}",
+                        signerInformation.getSID().getIssuer(), signerInformation.getSID().getSerialNumber());
             }
         }
     }

@@ -12,6 +12,8 @@ import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.tsp.GenTimeAccuracy;
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -27,6 +29,8 @@ import static java.lang.String.format;
  * A non standard timestamp signoture format that embeds a standard pkcs7 timestamp signature.
  */
 public class BeaTimestamp {
+
+    private static final Logger logger = LoggerFactory.getLogger(BeaTimestamp.class);
 
     private final int status;
 
@@ -51,11 +55,10 @@ public class BeaTimestamp {
         }
 
         final ASN1Encodable wrapperSequence = inputSequence.getObjectAt(0);
-        if (!(wrapperSequence instanceof ASN1Sequence)) {
+        if (!(wrapperSequence instanceof ASN1Sequence wrapperSequenceCasted)) {
             final String message = format("Expected type ASN1Sequence but got %s.", wrapperSequence.getClass().getName());
             throw new IllegalArgumentException(message);
         }
-        final ASN1Sequence wrapperSequenceCasted = (ASN1Sequence) wrapperSequence;
         if (wrapperSequenceCasted.size() != 2) {
             final String message = format("Expected a sequence of 2 items but got %d item(s).", wrapperSequenceCasted.size());
             throw new IllegalArgumentException(message);
@@ -69,12 +72,11 @@ public class BeaTimestamp {
         status = ((ASN1Integer) intItem).intValueExact();
 
         final ASN1Encodable stringSequence = wrapperSequenceCasted.getObjectAt(1);
-        if (!(stringSequence instanceof ASN1Sequence)) {
+        if (!(stringSequence instanceof ASN1Sequence stringSequenceCasted)) {
             final String message = format("Expected type ASN1Sequence but got %s.", stringSequence.getClass().getName());
             throw new IllegalArgumentException(message);
         }
 
-        final ASN1Sequence stringSequenceCasted = (ASN1Sequence) stringSequence;
         if (stringSequenceCasted.size() != 1) {
             final String message = format("Expected a sequence of 1 item but got %d item(s).", stringSequenceCasted.size());
             throw new IllegalArgumentException(message);
@@ -106,8 +108,7 @@ public class BeaTimestamp {
         try {
             return Optional.of(new BeaTimestamp(bytes));
         } catch (Exception e) {
-            System.err.printf("Failed to parse BeaTimestamp: %s%n", e.getMessage());
-            e.printStackTrace(System.err);
+            logger.error("Failed to parse BeaTimestamp.", e);
             return Optional.empty();
         }
     }
@@ -192,8 +193,7 @@ public class BeaTimestamp {
             timeStampToken.validate(verifier);
             return true;
         } catch (TSPException e) {
-            System.err.printf("Failed to validate timestamp: %s%n", e.getMessage());
-            e.printStackTrace(System.err);
+            logger.error("Failed to validate timestamp.", e);
             return false;
         }
     }

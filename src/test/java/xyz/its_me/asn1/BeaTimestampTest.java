@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.bouncycastle.cms.CMSSignedGenerator.DIGEST_SHA256;
 
 @SpringBootTest
-public class BeaTimestampTest {
+class BeaTimestampTest {
 
     @Value("classpath:/brak/BRAK_beA_Zeitstempel.cer")
     private Resource tsCertificate;
@@ -35,7 +35,7 @@ public class BeaTimestampTest {
     }
 
     @Test
-    public void shouldVerifyTimestamp(@Value("classpath:/Nachricht44044226.zip.p7s") Resource govResource)
+    void shouldVerifyTimestamp(@Value("classpath:/Nachricht44044226.zip.p7s") Resource govResource)
             throws Exception {
 
         assertThat(govResource).isNotNull();
@@ -46,7 +46,7 @@ public class BeaTimestampTest {
         Assertions.assertThat(beaTimestamp)
                 .get()
                 .satisfies(beaTs -> {
-                    assertThat(beaTs.getStatus()).isEqualTo(0);
+                    assertThat(beaTs.getStatus()).isZero();
                     assertThat(beaTs.getDetails()).isEqualTo("Operation Okay");
 
                     assertThat(beaTs.getHashAlgorithmId()).isEqualTo(DIGEST_SHA256);
@@ -56,7 +56,7 @@ public class BeaTimestampTest {
                     assertThat(beaTs.getGenTime())
                             .withDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
                             .hasSameTimeAs("2020-09-12T07:41:25+00:00");
-                    assertThat(beaTs.getGenTimeAccuracy().toString()).isEqualTo("5.000000");
+                    assertThat(beaTs.getGenTimeAccuracy()).hasToString("5.000000");
                     assertThat(beaTs.getPolicyId()).isEqualTo("1.1.1");
 
                     assertThat(beaTs.isSignatureValid(verifier)).isTrue();

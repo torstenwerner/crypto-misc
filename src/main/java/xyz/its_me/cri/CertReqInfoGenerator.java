@@ -5,13 +5,18 @@ import org.bouncycastle.asn1.pkcs.CertificationRequestInfo;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class CertReqInfoGenerator {
+
+    private static final Logger logger = LoggerFactory.getLogger(CertReqInfoGenerator.class);
+
     public static void generate(String pubKeyFile, String x500Name, String outputFile) throws IOException {
         if (!new File(pubKeyFile).canRead()) {
-            System.err.printf("Cannot read file %s.%n", pubKeyFile);
+            logger.error("Cannot read file {}.", pubKeyFile);
             return;
         }
 
@@ -20,7 +25,7 @@ public class CertReqInfoGenerator {
             object = asn1InputStream.readObject();
         } catch (IOException e) {
             // try PEM as a fallback
-            System.out.println("Failed to read DER file - try to fallback to PEM format.");
+            logger.info("Failed to read DER file - try to fallback to PEM format.");
             try (PemReader pemReader = new PemReader(new FileReader(pubKeyFile))) {
                 final byte[] pemContent = pemReader.readPemObject().getContent();
                 try (ASN1InputStream asn1InputStream = new ASN1InputStream(pemContent)) {
@@ -29,7 +34,7 @@ public class CertReqInfoGenerator {
             }
         }
         new CertReqInfoGenerator().newRequestInfo(object.getEncoded(), x500Name, outputFile);
-        System.out.printf("CertificationRequestInfo written to file %s%n", outputFile);
+        logger.info("CertificationRequestInfo written to file {}.", outputFile);
     }
 
     private void newRequestInfo(byte[] publicKey, String x500Name, String outputFile) throws IOException {
@@ -50,7 +55,7 @@ public class CertReqInfoGenerator {
         try {
             return SubjectPublicKeyInfo.getInstance(publicKey);
         } catch (IllegalArgumentException e) {
-            System.err.println("Public key is incomplete. Assuming RSA public key material.");
+            logger.error("Public key is incomplete. Assuming RSA public key material.");
             final ASN1ObjectIdentifier rsaIdentifier = new ASN1ObjectIdentifier("1.2.840.113549.1.1.1");
             final ASN1EncodableVector idPartVector = new ASN1EncodableVector();
             idPartVector.add(rsaIdentifier);

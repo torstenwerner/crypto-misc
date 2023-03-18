@@ -11,7 +11,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class HashTreeTest {
+class HashTreeTest {
 
     private static byte[] getDigest(String data) throws GeneralSecurityException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -43,7 +43,7 @@ public class HashTreeTest {
     }
 
     @Test
-    public void testHashtree() throws GeneralSecurityException {
+    void testHashtree() throws GeneralSecurityException {
         assertThat(digestList01).hasSize(6);
         int fullSize = 0;
         for (List<byte[]> subList : digestList01) {
@@ -54,26 +54,26 @@ public class HashTreeTest {
     }
 
     @Test
-    public void testWrongTree() {
+    void testWrongTree() {
         assertThatThrownBy(() -> verifier.verify(digestList01, data02))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void testWrongDigest() {
+    void testWrongDigest() {
         assertThatThrownBy(() -> hashTree.getReducedTree(data04))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void testModifiedTree() {
+    void testModifiedTree() {
         digestList01.get(0).get(0)[0] += 1;
         assertThatThrownBy(() -> verifier.verify(digestList01, data01))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void testWrongRoot() {
+    void testWrongRoot() {
         assertThatThrownBy(() -> wrongRootVerifier.verify(digestList01, data01))
                 .isInstanceOf(RuntimeException.class);
     }

@@ -1,6 +1,8 @@
 package xyz.its_me;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,13 +18,14 @@ import java.util.List;
 @SpringBootApplication
 public class Application implements ApplicationRunner {
 
+    private final Logger logger = LoggerFactory.getLogger(Application.class);
+
     static {
         Security.addProvider(new BouncyCastleProvider());
     }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-        ;
     }
 
     @Override
@@ -44,10 +47,11 @@ public class Application implements ApplicationRunner {
             BeaTimestampVerifier.verify(nonOptionArgs.get(1), nonOptionArgs.get(2));
             return;
         }
-        System.out.println("usage:\n" +
-                "    java -jar crypto-misc.jar asn1 <fileName>\n" +
-                "    java -jar crypto-misc.jar er <erName> <certName> <dataName>\n" +
-                "    java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>\n" +
-                "    java -jar crypto-misc.jar beatsverify <zipFile> <signatureFile>");
+        logger.error("""
+                usage:
+                    java -jar crypto-misc.jar asn1 <fileName>
+                    java -jar crypto-misc.jar er <erName> <certName> <dataName>
+                    java -jar crypto-misc.jar cri <pubKeyFile> <x500Name> <outputFile>
+                    java -jar crypto-misc.jar beatsverify <zipFile> <signatureFile>""");
     }
 }

@@ -1,12 +1,17 @@
 package xyz.its_me.hashtree;
 
-import java.security.GeneralSecurityException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 
 public class HashTreeVerifier {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final int SHA256_SIZE = 32;
 
     private final byte[] treeDigest;
@@ -47,15 +52,11 @@ public class HashTreeVerifier {
     }
 
     private void debug(String message, byte[] value) {
-//		System.out.println(message + ": " + Utils.toHex(value));
+        logger.debug("{}: {}", message, value);
     }
 
     /**
      * verifies that digest and reduced tree match the tree's root digest
-     *
-     * @param reducedTree
-     * @param digest
-     * @throws GeneralSecurityException
      */
     public void verify(List<List<byte[]>> reducedTree, byte[] digest) {
         debug("doc digest", digest);

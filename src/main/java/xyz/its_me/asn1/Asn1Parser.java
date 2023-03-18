@@ -3,6 +3,8 @@ package xyz.its_me.asn1;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +15,9 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 
 public class Asn1Parser {
+
+    private static final Logger logger = LoggerFactory.getLogger(Asn1Parser.class);
+
     private final StringBuilder output = new StringBuilder();
 
     private void addMessage(String message) {
@@ -27,64 +32,48 @@ public class Asn1Parser {
     }
 
     public void print() {
-        System.out.print(output);
+        logger.info("{}", output);
     }
 
     private void parse() {
         if (primitive == null) {
-            System.err.println("Cannot parse null!");
+            logger.info("Cannot parse null!");
             System.exit(1);
-        } else if (primitive instanceof ASN1Sequence) {
-            ASN1Sequence sequence = (ASN1Sequence) primitive;
+        } else if (primitive instanceof ASN1Sequence sequence) {
             addMessage("sequence, length = " + sequence.size());
-            for (int i = 0; i < sequence.size(); i++) {
-                new Asn1Parser(sequence.getObjectAt(i).toASN1Primitive(), indent + 1).mergeMessagesTo(this);
-            }
-        } else if (primitive instanceof ASN1Set) {
-            ASN1Set set = (ASN1Set) primitive;
+            sequence.forEach(asn1Encodable ->
+                    new Asn1Parser(asn1Encodable.toASN1Primitive(), indent + 1).mergeMessagesTo(this));
+        } else if (primitive instanceof ASN1Set set) {
             addMessage("set, length = " + set.size());
-            for (int i = 0; i < set.size(); i++) {
-                new Asn1Parser((ASN1Primitive) set.getObjectAt(i), indent + 1).mergeMessagesTo(this);
-            }
-        } else if (primitive instanceof ASN1Integer) {
-            ASN1Integer asn1Integer = (ASN1Integer) primitive;
+            set.forEach(asn1Encodable ->
+                    new Asn1Parser(asn1Encodable.toASN1Primitive(), indent + 1).mergeMessagesTo(this));
+        } else if (primitive instanceof ASN1Integer asn1Integer) {
             addMessage("integer = " + asn1Integer.getValue());
-        } else if (primitive instanceof ASN1Enumerated) {
-            ASN1Enumerated enumerated = (ASN1Enumerated) primitive;
+        } else if (primitive instanceof ASN1Enumerated enumerated) {
             addMessage("enumerated = " + enumerated.getValue());
-        } else if (primitive instanceof ASN1ObjectIdentifier) {
-            ASN1ObjectIdentifier identifier = (ASN1ObjectIdentifier) primitive;
+        } else if (primitive instanceof ASN1ObjectIdentifier identifier) {
             final String oid = identifier.getId();
             addMessage("OID, id = " + oid + " (" + OidProperties.resolveOid(oid) + ")");
-        } else if (primitive instanceof ASN1TaggedObject) {
-            ASN1TaggedObject taggedObject = (ASN1TaggedObject) primitive;
+        } else if (primitive instanceof ASN1TaggedObject taggedObject) {
             addMessage("tagged object, #" + taggedObject.getTagNo());
             new Asn1Parser(taggedObject.toASN1Primitive(), indent + 1).mergeMessagesTo(this);
         } else if (primitive instanceof DERNull) {
             addMessage("null");
-        } else if (primitive instanceof ASN1UTCTime) {
-            ASN1UTCTime utcTime = (ASN1UTCTime) primitive;
+        } else if (primitive instanceof ASN1UTCTime utcTime) {
             addMessage("UTC time = " + utcTime.getTime());
-        } else if (primitive instanceof ASN1GeneralizedTime) {
-            ASN1GeneralizedTime generalizedTime = (ASN1GeneralizedTime) primitive;
+        } else if (primitive instanceof ASN1GeneralizedTime generalizedTime) {
             addMessage("generalized time = " + generalizedTime.getTime());
-        } else if (primitive instanceof ASN1Boolean) {
-            ASN1Boolean asn1Boolean = (ASN1Boolean) primitive;
+        } else if (primitive instanceof ASN1Boolean asn1Boolean) {
             addMessage("boolean = " + asn1Boolean.isTrue());
-        } else if (primitive instanceof DERIA5String) {
-            DERIA5String ia5String = (DERIA5String) primitive;
+        } else if (primitive instanceof DERIA5String ia5String) {
             addMessage("IA5String (" + ia5String.getString() + ")");
-        } else if (primitive instanceof DERBMPString) {
-            DERBMPString bmpString = (DERBMPString) primitive;
+        } else if (primitive instanceof DERBMPString bmpString) {
             addMessage("BMPString (" + bmpString.getString() + ")");
-        } else if (primitive instanceof DERPrintableString) {
-            DERPrintableString printableString = (DERPrintableString) primitive;
+        } else if (primitive instanceof DERPrintableString printableString) {
             addMessage("printable string (" + printableString.getString() + ")");
-        } else if (primitive instanceof DERUTF8String) {
-            DERUTF8String printableString = (DERUTF8String) primitive;
+        } else if (primitive instanceof DERUTF8String printableString) {
             addMessage("UTF-8 string (" + printableString.getString() + ")");
-        } else if (primitive instanceof DERBitString) {
-            DERBitString bitString = (DERBitString) primitive;
+        } else if (primitive instanceof DERBitString bitString) {
             final byte[] bytes = bitString.getBytes();
             String message = "bit string, " + bytes.length + " bytes";
             if (bytes.length <= 4) {
@@ -92,8 +81,7 @@ public class Asn1Parser {
             }
             addMessage(message);
             new Asn1Parser(bytes, indent + 1).mergeMessagesTo(this);
-        } else if (primitive instanceof ASN1OctetString) {
-            ASN1OctetString octetString = (ASN1OctetString) primitive;
+        } else if (primitive instanceof ASN1OctetString octetString) {
             final byte[] bytes = octetString.getOctets();
             addMessage("octet string, " + bytes.length + " bytes, content = " + StringUtils.abbreviate(octetString.toString(), 64));
             new Asn1Parser(bytes, indent + 1).mergeMessagesTo(this);
@@ -137,7 +125,7 @@ public class Asn1Parser {
 
     public static void parse(String filename) throws IOException {
         if (!new File(filename).canRead()) {
-            System.err.printf("Cannot read file %s.%n", filename);
+            logger.error("Cannot read file {}.", filename);
             return;
         }
 
@@ -147,7 +135,7 @@ public class Asn1Parser {
             object = asn1InputStream.readObject();
         } catch (IOException e) {
             // try PEM as a fallback
-            System.out.println("Failed to read DER file - try to fallback to PEM format.");
+            logger.info("Failed to read DER file - try to fallback to PEM format.");
             try (PemReader pemReader = new PemReader(new FileReader(filename))) {
                 final byte[] pemContent = pemReader.readPemObject().getContent();
                 try (ASN1InputStream asn1InputStream = new ASN1InputStream(pemContent)) {
@@ -156,6 +144,6 @@ public class Asn1Parser {
             }
         }
         new Asn1Parser(object, 0).print();
-        System.out.printf("size of encoded object: %d%n", object.getEncoded().length);
+        logger.info("size of encoded object: {}", object.getEncoded().length);
     }
 }
