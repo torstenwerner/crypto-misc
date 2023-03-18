@@ -1,15 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-    }
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.7.9'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
-
-apply plugin: "java"
-apply plugin: "io.spring.dependency-management"
-apply plugin: "org.springframework.boot"
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -28,7 +21,7 @@ dependencies {
 //    implementation(fileTree(include: ['*.jar'], dir: 'lib'))
 
     implementation("commons-codec:commons-codec:1.15")
-    implementation("org.apache.commons:commons-lang3:3.9")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
