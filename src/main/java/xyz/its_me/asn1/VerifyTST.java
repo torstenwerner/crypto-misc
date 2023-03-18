@@ -47,7 +47,7 @@ public class VerifyTST {
         validateCertificate();
 
         Store<X509CertificateHolder> store = token.getCertificates();
-        logger.info("certs = {}", store.getMatches(new X509CertStoreSelector()));
+        logger.info("certs = {}", store.getMatches(null));
         if (token.getSignedAttributes() != null) {
             logger.info("signed attribute count: {}", token.getSignedAttributes().size());
             @SuppressWarnings("unchecked")
