@@ -1,6 +1,7 @@
 package xyz.its_me.hashtree;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class UnsignedByteArray implements Comparable<UnsignedByteArray> {
     private final byte[] array;
@@ -16,7 +17,7 @@ public class UnsignedByteArray implements Comparable<UnsignedByteArray> {
     @Override
     public int compareTo(UnsignedByteArray other) {
         if (array.length != other.array.length) {
-            throw new RuntimeException("arrays have different lengths: " + array.length + " vs. " + other.array.length);
+            return Integer.compare(array.length, other.array.length);
         }
         int result = 0;
         for (int i = 0; i < array.length && result == 0; i++) {
