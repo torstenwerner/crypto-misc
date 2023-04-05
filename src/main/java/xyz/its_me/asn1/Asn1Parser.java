@@ -56,7 +56,7 @@ public class Asn1Parser {
             addMessage("OID, id = " + oid + " (" + OidProperties.resolveOid(oid) + ")");
         } else if (primitive instanceof ASN1TaggedObject taggedObject) {
             addMessage("tagged object, #" + taggedObject.getTagNo());
-            new Asn1Parser(taggedObject.toASN1Primitive(), indent + 1).mergeMessagesTo(this);
+            new Asn1Parser(taggedObject.getBaseObject().toASN1Primitive(), indent + 1).mergeMessagesTo(this);
         } else if (primitive instanceof DERNull) {
             addMessage("null");
         } else if (primitive instanceof ASN1UTCTime utcTime) {
